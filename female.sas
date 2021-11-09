@@ -1,14 +1,10 @@
 * Written by R;
 *  write.foreign(female, "/Users/bensonwu/Documents/UCLA/2021-2022/BIOSTAT_203A/Project1/BIOSTAT-203A/female.csv",  ;
 
-PROC FORMAT;
-value sex 
-     1 = "0" 
-;
-
 DATA  rdata ;
 LENGTH
  radflag $ 1
+ sex $ 6
  race $ 1
  educ $ 1
  ssa82 $ 1
@@ -24,7 +20,7 @@ LENGTH
 
 INFILE  "/Users/bensonwu/Documents/UCLA/2021-2022/BIOSTAT_203A/Project1/BIOSTAT-203A/female.csv" 
      DSD 
-     LRECL= 229 ;
+     LRECL= 236 ;
 INPUT
  radflag
  orauid
@@ -66,5 +62,4 @@ INPUT
  ltdate
  seq_no
 ;
-FORMAT sex sex. ;
 RUN;
