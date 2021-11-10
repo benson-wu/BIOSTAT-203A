@@ -177,18 +177,36 @@ data combined;
 SET female male; 
 run;
 	
+/*reduce data set to only include individuals who have data for ddate*/
+DATA combined_reduced;
+    SET combined;
+    IF (ddate=0) THEN DELETE;
+RUN;
+	
+/*Create variable age_dth*/
+data combined_reduced;
+	set combined_reduced;
+	age_dth = ddate-bdate+1900;
+run; 
+	
 
 /*Descriptive statistics on demographics*/
+/*We have 536 females and 3320 males after subsetting individuals who died*/
 
-Proc freq data=combined;
+proc means data=combined_reduced mean std nway;
+	class sex;
+	var age_dth;
+run;
+
+Proc freq data=combined_reduced;
 Tables educ*sex/ NOPERCENT NOCUM;
 Run;
 
-Proc freq data=combined;
+Proc freq data=combined_reduced;
 Tables race*sex;
 Run;
 
-Proc freq data=combined;
+Proc freq data=combined_reduced;
 Tables ethnic*sex;
 Run;
 
@@ -196,11 +214,29 @@ Run;
 
 	
 /*Statistical tests*/	
-examine differences between males and females for the following variables 
+/*examine differences between males and females for the following variables */
 
-ncils
-nciyls
-nciyrs
-prevbb
+/*Females died youger*/
+proc ttest data=combined_reduced sides=2 alpha=0.05 h0=0;
+ 	title "Two sample t-test between males and females for age at death";
+ 	class sex; 
+	var age_dth;
+run;
 
-radflag
+
+
+/*Males have a higher ncils (Body burden (12/31/1984) in nCi-years)*/
+proc ttest data=combined_reduced sides=2 alpha=0.05 h0=0;
+ 	title "Two sample t-test between males and females for ncils";
+ 	class sex; 
+	var nciyrs;
+run;
+
+
+/*Males have a higher curbb (Body burden as of 12/31/1984 in nCi)*/
+proc ttest data=combined_reduced sides=2 alpha=0.05 h0=0;
+ 	title "Two sample t-test between males and females for ncils";
+ 	class sex; 
+	var curbb;
+run;
+
