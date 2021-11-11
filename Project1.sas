@@ -176,19 +176,19 @@ RUN;
 data combined; 
 SET female male; 
 run;
-	
+
 /*reduce data set to only include individuals who have data for ddate*/
 DATA combined_reduced;
     SET combined;
     IF (ddate=0) THEN DELETE;
-RUN;
-	
+RUN;	
+
 /*Create variable age_dth*/
 data combined_reduced;
 	set combined_reduced;
 	age_dth = ddate-bdate+1900;
 run; 
-	
+
 
 /*Descriptive statistics on demographics*/
 /*We have 536 females and 3320 males after subsetting individuals who died*/
@@ -209,6 +209,9 @@ Run;
 Proc freq data=combined_reduced;
 Tables ethnic*sex;
 Run;
+
+
+
 
 	
 
@@ -240,3 +243,101 @@ proc ttest data=combined_reduced sides=2 alpha=0.05 h0=0;
 	var curbb;
 run;
 
+
+
+
+
+
+
+
+
+
+/*
+Redo the above analysis with a 
+dataset that only includes individuals who
+were monitered for plutonium
+*/
+
+	
+/*Create a reduced female data set for individuals who were monitered for plutonium*/	
+DATA female_rad;
+   SET female;
+   IF (monplu="N") THEN DELETE;
+RUN;
+
+/*Create a reduced male data set for individuals who were monitered for plutonium*/
+DATA male_rad;
+  SET male;
+  IF (monplu=P) THEN DELETE;
+RUN;
+	
+/*Create a dataset for combined female + male who were monitered for plutonium*/	
+data combined_rad; 
+	SET female_rad male_rad; 
+run;
+		
+DATA combined_rad_reduced;
+    SET combined_rad;
+    IF (ddate=0) THEN DELETE;
+RUN;	/*626 observations*/
+
+/*Create variable age_dth*/
+data combined_rad_reduced;
+	set combined_rad_reduced;
+	age_dth = ddate-bdate+1900;
+run; 	
+
+
+
+/*Descriptive statistics on demographics*/
+/*We have 536 females and 3320 males after subsetting individuals who died*/
+
+proc means data=combined_rad_reduced mean std nway;
+	class sex;
+	var age_dth;
+run;
+
+Proc freq data=combined_rad_reduced;
+Tables educ*sex/ NOPERCENT NOCUM;
+Run;
+
+Proc freq data=combined_rad_reduced;
+Tables race*sex;
+Run;
+
+Proc freq data=combined_rad_reduced;
+Tables ethnic*sex;
+Run;
+
+
+
+
+	
+
+	
+/*Statistical tests*/	
+/*examine differences between males and females for the following variables */
+
+/*Females died youger*/
+proc ttest data=combined_rad_reduced sides=2 alpha=0.05 h0=0;
+ 	title "Two sample t-test between males and females for age at death";
+ 	class sex; 
+	var age_dth;
+run;
+
+
+
+/*Males have a higher ncils (Body burden (12/31/1984) in nCi-years)*/
+proc ttest data=combined_rad_reduced sides=2 alpha=0.05 h0=0;
+ 	title "Two sample t-test between males and females for ncils";
+ 	class sex; 
+	var nciyrs;
+run;
+
+
+/*Males have a higher curbb (Body burden as of 12/31/1984 in nCi)*/
+proc ttest data=combined_rad_reduced sides=2 alpha=0.05 h0=0;
+ 	title "Two sample t-test between males and females for ncils";
+ 	class sex; 
+	var curbb;
+run;
